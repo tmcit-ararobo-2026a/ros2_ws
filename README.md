@@ -24,17 +24,8 @@ NHKロボコン2026用ros2_wsです。
 
 ## 3. ビルド・使い方
 
-一括クローン
 ```bash
-vcs import src < ararobo_2026a.repos
-```
-
-一括ビルド
-```bash
-source /opt/ros/humble/setup.bash
-rosdep update
-rosdep install --from-paths src --ignore-src -y
-colcon build
+./setup.sh
 ```
 
 ## 4. システム構成
