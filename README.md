@@ -1,6 +1,6 @@
-# <リポジトリ名>
+# ROS2 Workspace
 
-<!-- 一行でプロジェクトを説明する -->
+NHKロボコン2026用ros2_wsです。
 
 ## 目次
 
@@ -12,7 +12,7 @@
 
 ## 1. 概要
 
-<!-- プロジェクトの目的・背景・解決する課題を記述 -->
+一括でROS2関連のリポジトリをクローンし、ワークスペース単位で管理するために作成しました。
 
 ## 2. ドキュメント
 
@@ -24,13 +24,25 @@
 
 ## 3. ビルド・使い方
 
-<!-- ビルドのやり方 -->
-<!-- 使い方 -->
+一括クローン
+```bash
+vcs import src < ararobo_2026a.repos
+```
+
+一括ビルド
+```bash
+source /opt/ros/humble/setup.bash
+rosdep update
+rosdep install --from-paths src --ignore-src -y
+colcon build
+```
 
 ## 4. システム構成
 
-<!-- ROS2ノード構成・STM32との通信方式・ハードウェア構成 等 -->
-<!-- 依存クラスが3つ以上ある場合は docs/uml/ にUML図を作成し、ここにリンクする -->
+gn10-pointcloud-localization: PointCloud2より２次元的な自己位置推定を行うCUDA用パッケージ
+opponent-tracker: gn10-pointcloud-localizationが生成する動的点群を用いて相手チームのロボットを追跡する軽量パッケージ
+robot-bringup: ロボット全体のlaunchや自動起動用スクリプト＆サービスファイルを扱うパッケージ
+robot-port: ロボットとの通信を行いTopic通信とUDP通信の変換を行うパッケージ
 
 ## 5. ライセンス
 
