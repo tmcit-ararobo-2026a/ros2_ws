@@ -1,8 +1,0 @@
-- git:
-    local-name: robot_port
-    url: https://github.com/tmcit-ararobo-2026a/robot-port.git
-    version: main
-- git:
-    local-name: manipuration
-    url: https://github.com/tmcit-ararobo-2026a/manipuration.git
-    version: main
