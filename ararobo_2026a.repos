@@ -3,6 +3,10 @@ repositories:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/gn10-pointcloud-localization
     version: main
+  livox_ros_driver2:
+    type: git
+    url: https://github.com/tmcit-ararobo-2026a/livox_ros_driver2
+    version: master
   opponent-tracker:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/opponent-tracker
