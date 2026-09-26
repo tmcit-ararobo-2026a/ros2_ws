@@ -27,3 +27,7 @@ repositories:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/field-targets-publisher
     version: main
+  gn10-navigation:
+    type: git
+    url: https://github.com/tmcit-ararobo-2026a/gn10-navigation
+    version: main
