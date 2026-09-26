@@ -27,3 +27,7 @@ repositories:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/realsense_dust_cloth
     version: main
+  field-targets-publisher:
+    type: git
+    url: https://github.com/tmcit-ararobo-2026a/field-targets-publisher
+    version: main
