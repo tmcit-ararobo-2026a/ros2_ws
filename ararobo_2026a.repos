@@ -19,3 +19,11 @@ repositories:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/robot-port
     version: main
+  realsense-ros:
+    type: git
+    url: https://github.com/tmcit-ararobo-2026a/realsense-ros
+    version: ros2-master
+  realsense_dust_cloth:
+    type: git
+    url: https://github.com/tmcit-ararobo-2026a/realsense_dust_cloth
+    version: main
