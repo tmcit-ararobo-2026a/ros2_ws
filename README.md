@@ -24,8 +24,28 @@ NHKロボコン2026用ros2_wsです。
 
 ## 3. ビルド・使い方
 
+CUDAのパスが通っていない場合：
+```bash
+export PATH=/usr/local/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+```
+必要なリポジトリのクローンや依存関係の解決
 ```bash
 ./setup.sh
+```
+再ビルド
+```bash
+./update.sh
+```
+
+Jetson用：
+sshサーバーやjetpackインストール
+```bash
+./jetson_basic_setup.sh
+```
+librealsenseインストール
+```bash
+./librealsense_setup.sh
 ```
 
 ## 4. システム構成
