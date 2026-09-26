@@ -1,6 +1,14 @@
 #! /bin/bash
 set -e  # エラーが発生した時点でスクリプトを停止
 
+echo "=== Checking CUDA environment ==="
+if ! command -v nvcc &> /dev/null; then
+    echo "エラー: CUDA (nvcc) のパスが通っていません。" >&2
+    echo "PATH および LD_LIBRARY_PATH に CUDA が設定されているか確認してください。" >&2
+    exit 1
+fi
+echo "CUDA PATH Check OK: $(which nvcc)"
+
 # -------------------------------------------------------------------------
 # 1. 依存関係のインストールとビルド
 # -------------------------------------------------------------------------
@@ -22,7 +30,7 @@ colcon build --symlink-install
 # -------------------------------------------------------------------------
 # 2. スクリプト群への実行権限付与
 # -------------------------------------------------------------------------
-SCRIPTS_DIR="/home/ararobo/ros2_ws/src/robot-bringup/scripts"
+SCRIPTS_DIR="${HOME}/ros2_ws/src/robot-bringup/scripts"
 
 echo "=== Granting execution permissions to scripts ==="
 chmod +x ${SCRIPTS_DIR}/launch_ros2.sh

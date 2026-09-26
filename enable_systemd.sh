@@ -4,7 +4,7 @@ set -e  # エラーが発生した時点でスクリプトを停止
 # -------------------------------------------------------------------------
 # 3. リポジトリ内の systemd サービスファイルの配置
 # -------------------------------------------------------------------------
-SOURCE_SERVICE_FILE="/home/ararobo/ros2_ws/src/robot-bringup/systemd/robot.service"
+SOURCE_SERVICE_FILE="${HOME}/ros2_ws/src/robot-bringup/systemd/robot.service"
 TARGET_SERVICE_FILE="/etc/systemd/system/robot.service"
 
 echo "=== Linking systemd service file ==="
