@@ -31,3 +31,7 @@ repositories:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/gn10-navigation
     version: main
+  Lakibeam_ROS2_Driver:
+    type: git
+    url: https://github.com/tmcit-ararobo-2026a/Lakibeam_ROS2_Driver
+    version: main
