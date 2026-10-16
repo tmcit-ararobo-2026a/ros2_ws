@@ -1,0 +1,349 @@
+' A4 portrait-friendly multi-page ROS 2 node graph.
+' Each @startuml block is an independent page. This avoids one oversized
+' horizontal canvas while keeping every topic in the detailed pages.
+
+@startuml ROS2_Workspace_Overview
+title ROS 2 Workspace - Overview
+top to bottom direction
+scale 0.72
+skinparam dpi 150
+skinparam defaultFontSize 10
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 18
+skinparam ranksep 24
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+rectangle "LiDAR / IMU\nLivox, Lakibeam" as sensors
+component "gn10_pointcloud_localization_node" as localization
+component "moving_bucket_detector\n+ track_freshness_guard_node" as bucket
+component "opponent_tracker_node" as opponent
+component "costmap_generator_node\n+ path_planner_node\n+ path_follower_node" as navigation
+component "auto_mode_manager_node" as manager
+component "udp_node" as udp
+rectangle "Mainboard\nUDP" as mainboard
+rectangle "RealSense\ncloth_tracker_cuda_node" as cloth
+rectangle "field_target_node" as targets
+
+artifact "/livox/lidar\nPointCloud2" as lidar_topic
+artifact "/livox/imu\nImu" as imu_topic
+artifact "/dynamic_cloud\nPointCloud2" as dynamic_topic
+artifact "/localization/status\nLocalizationStatus" as status_topic
+artifact "/moving_bucket_detector/target\nMovingBucketTrack" as bucket_topic
+artifact "/opponent_robot/pose\nPoseStamped" as opponent_topic
+artifact "/navigation/follow_path\nFollowPath action" as follow_action
+artifact "/robot/operation\nRobotOperation" as operation_topic
+artifact "/robot/feedback\nRobotFeedback" as feedback_topic
+artifact "/field/targets\nTargetSet" as target_topic
+
+sensors --> lidar_topic
+sensors --> imu_topic
+lidar_topic ..> localization
+imu_topic ..> localization
+localization --> dynamic_topic
+localization --> status_topic
+dynamic_topic ..> opponent
+lidar_topic ..> bucket
+status_topic ..> manager
+bucket --> bucket_topic
+bucket_topic ..> manager
+opponent --> opponent_topic
+opponent_topic ..> manager
+navigation ..> follow_action
+manager --> follow_action
+manager --> operation_topic
+operation_topic ..> udp
+udp --> feedback_topic
+feedback_topic ..> manager
+udp --> mainboard
+targets --> target_topic
+target_topic ..> manager
+cloth --> manager : optional outputs
+
+legend bottom
+  This page is a compact overview.
+  Detailed pages below contain all topics and types.
+endlegend
+@enduml
+
+@startuml ROS2_Perception
+title ROS 2 Workspace - Localization and Perception
+top to bottom direction
+scale 0.70
+skinparam dpi 150
+skinparam defaultFontSize 9
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 14
+skinparam ranksep 20
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+rectangle "Livox driver\nlivox_ros_driver2" as livox
+rectangle "Lakibeam driver\nlakibeam1_scan_node" as lakibeam
+artifact "/livox/lidar\nsensor_msgs/msg/PointCloud2" as lidar
+artifact "/livox/imu\nsensor_msgs/msg/Imu" as imu
+artifact "/lakibeam/scan\nsensor_msgs/msg/LaserScan" as scan
+artifact "/tf\nTFMessage\nmap -> sensor/base_link" as tf
+artifact "/tf_static\nTFMessage" as tf_static
+artifact "/clock\nClock" as clock
+
+component "gn10_pointcloud_localization_node" as loc
+component "localization_status_monitor_node" as monitor
+artifact "/dynamic_cloud\nsensor_msgs/msg/PointCloud2" as dynamic
+artifact "/ground_cloud\nsensor_msgs/msg/PointCloud2" as ground
+artifact "/obstacle_cloud\nsensor_msgs/msg/PointCloud2" as obstacle
+artifact "/platform_constraint\nPoseWithCovarianceStamped" as pose
+artifact "/field_map_markers\nMarkerArray" as map_markers
+artifact "/esdf_map\nPointCloud2" as esdf
+artifact "/localization/status_raw\nLocalizationStatus" as raw_status
+artifact "/localization/status\nLocalizationStatus" as status
+
+component "moving_bucket_detector\nCUDA" as bucket
+component "track_freshness_guard_node\nCPU" as guard
+artifact "/moving_bucket_detector/target_raw\nMovingBucketTrack" as raw_bucket
+artifact "/moving_bucket_detector/target\nMovingBucketTrack" as bucket_target
+artifact "/moving_bucket_detector/diagnostics\nDiagnosticArray" as diagnostics
+artifact "/moving_bucket_detector/markers\nMarkerArray" as bucket_markers
+artifact "map -> moving_bucket\noptional TF" as bucket_tf
+
+component "opponent_tracker_node\nCPU / Eigen" as opponent
+artifact "/opponent_robot/pose\nPoseStamped" as opponent_pose
+artifact "/opponent_robot/bucket_target\nPointStamped" as opponent_bucket
+artifact "/opponent_robot/velocity\nTwistStamped" as opponent_velocity
+artifact "/opponent_robot/markers\nMarkerArray" as opponent_markers
+artifact "/our_robot/markers\nMarkerArray" as our_markers
+artifact "map -> opponent_robot\nmap -> opponent_bucket\noptional TF" as opponent_tf
+
+rectangle "RViz2 / diagnostics" as rviz
+rectangle "rosbag / test publisher" as bag
+
+livox --> lidar
+livox --> imu
+lakibeam --> scan
+lidar ..> loc
+imu ..> loc
+scan ..> loc : optional
+pose ..> loc : optional fused prior
+loc --> dynamic
+loc --> ground
+loc --> obstacle
+loc --> pose
+loc --> map_markers
+loc --> esdf
+loc --> raw_status
+loc --> tf
+raw_status ..> monitor
+dynamic ..> monitor : freshness input
+imu ..> monitor : freshness input
+monitor --> status
+
+lidar ..> bucket
+tf ..> bucket
+tf_static ..> bucket
+bucket --> raw_bucket
+bucket --> diagnostics
+bucket --> bucket_markers
+lidar ..> guard : freshness input
+raw_bucket ..> guard
+guard --> bucket_target
+guard --> bucket_tf
+
+dynamic ..> opponent : launch default
+artifact "/dynamic_points\nPointCloud2\nC++/YAML default variant" as dynamic_alt
+dynamic_alt ..> opponent : alternate config
+tf ..> opponent
+opponent --> opponent_pose
+opponent --> opponent_bucket
+opponent --> opponent_velocity
+opponent --> opponent_markers
+opponent --> our_markers
+opponent --> opponent_tf
+
+rviz ..> bucket_target
+rviz ..> bucket_markers
+rviz ..> opponent_pose
+rviz ..> opponent_markers
+rviz ..> map_markers
+bag --> lidar
+bag --> dynamic
+bag --> dynamic_alt
+bag --> clock
+clock ..> loc
+clock ..> bucket
+clock ..> opponent
+
+note right of dynamic_alt
+The localization output and launch default
+are /dynamic_cloud.
+The opponent-tracker C++ and YAML defaults
+also contain /dynamic_points.
+end note
+@enduml
+
+@startuml ROS2_Navigation
+title ROS 2 Workspace - Navigation, Safety, and Robot Port
+top to bottom direction
+scale 0.72
+skinparam dpi 150
+skinparam defaultFontSize 9
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 14
+skinparam ranksep 20
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+component "costmap_generator_node" as costmap
+component "path_planner_node" as planner
+component "path_follower_node" as follower
+component "auto_mode_manager_node\nPython runtime" as manager
+component "navigation_safety_monitor.py" as safety
+component "udp_node" as udp
+rectangle "Mainboard\nUDP" as board
+rectangle "Goal source" as goal
+
+artifact "/obstacle_cloud\nsensor_msgs/msg/PointCloud2" as obstacle
+artifact "/costmap\nnav_msgs/msg/OccupancyGrid" as costmap_topic
+artifact "/goal_pose\ngeometry_msgs/msg/PoseStamped" as goal_topic
+artifact "/navigation/compute_path\nComputePath service" as compute
+artifact "/planned_path\nnav_msgs/msg/Path\nlegacy input" as planned
+artifact "/navigation/follow_path\nFollowPath action" as follow
+artifact "/navigation/control_lease\nControlLease" as lease
+artifact "/navigation/path_velocity\nPathVelocity" as velocity
+artifact "/speed_path\nnav_msgs/msg/Path" as speed_path
+artifact "/robot/operation/cmd_vel\ngeometry_msgs/msg/Twist" as cmd_vel
+artifact "/robot/operation\nRobotOperation" as operation
+artifact "/robot/command\nRobotCommand" as command
+artifact "/robot/feedback\nRobotFeedback" as feedback
+artifact "/robot/communication_status\nBridgeHealth" as health
+artifact "/localization/status\nLocalizationStatus" as localization_status
+artifact "/moving_bucket_detector/target\nMovingBucketTrack" as bucket_target
+artifact "/opponent_robot/pose\nPoseStamped" as opponent_pose
+artifact "/field/targets\nTargetSet" as targets
+artifact "/auto_mode/safety\nSafetyState" as safety_state
+artifact "/auto_mode/status\nAutoModeStatus" as auto_status
+artifact "/auto_mode/execution_path\nExecutionPath" as execution
+artifact "/auto_mode/simulation\nSimulationState" as simulation
+
+obstacle ..> costmap
+costmap --> costmap_topic
+costmap_topic ..> planner
+goal --> goal_topic
+goal_topic ..> planner
+planner --> compute : service server
+planner --> planned : legacy publisher
+compute --> manager : service client
+manager --> follow : action client
+follow --> follower : action server
+planned ..> follower : only with legacy input enabled
+manager --> lease
+lease ..> follower
+follower --> velocity
+velocity ..> manager
+follower --> speed_path
+follower --> cmd_vel
+
+obstacle ..> safety
+costmap_topic ..> safety
+safety --> safety_state
+localization_status ..> manager
+bucket_target ..> manager
+opponent_pose ..> manager : optional
+targets ..> manager : optional
+feedback ..> manager
+health ..> manager
+safety_state ..> manager
+manager --> operation
+manager --> auto_status
+manager --> execution
+manager --> simulation
+operation ..> udp
+udp --> command
+udp --> feedback
+udp --> health
+udp --> board : UDP command
+board --> udp : UDP feedback
+
+note right of planned
+/planned_path is a legacy subscriber.
+Normal execution uses the FollowPath action.
+end note
+@enduml
+
+@startuml ROS2_Additional
+title ROS 2 Workspace - Field Targets, Cloth, and Test Nodes
+top to bottom direction
+scale 0.72
+skinparam dpi 150
+skinparam defaultFontSize 9
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 14
+skinparam ranksep 20
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+component "field_target_node" as field
+component "cloth_tracker_cuda_node" as cloth
+component "trajectory_probability_analyzer.py" as trajectory
+component "simulation_fixture.py\nintegration test" as simulation
+component "mock_mainboard_fixture.py\nintegration test" as mock
+component "robot_debugger" as debugger
+rectangle "RealSense camera" as camera
+rectangle "RViz2" as rviz
+rectangle "shooter_calculator\nexternal / missing in workspace" as shooter
+
+artifact "/field/targets\nfield_target_pub/msg/TargetSet" as targets
+artifact "/camera/camera/color/image_raw\nsensor_msgs/msg/Image" as raw_image
+artifact "/camera/camera/color/image_raw/compressed\nsensor_msgs/msg/CompressedImage" as compressed_image
+artifact "/camera/camera/color/camera_info\nsensor_msgs/msg/CameraInfo" as camera_info
+artifact "/cloth/position\ngeometry_msgs/msg/PointStamped" as cloth_position
+artifact "/cloth/trajectory_marker\nvisualization_msgs/msg/Marker" as cloth_marker
+artifact "/cloth/measured_path\nnav_msgs/msg/Path" as cloth_path
+artifact "/cloth/camera_view\nsensor_msgs/msg/Image" as camera_view
+artifact "/cloth/debug/roi_markers\nMarkerArray" as roi_markers
+artifact "/cloth/debug/cluster_points\nPointCloud2" as cluster_points
+artifact "/cloth/debug/filtered_points\nPointCloud2" as filtered_points
+artifact "/robot/operation\nrobot_port/msg/RobotOperation" as operation
+artifact "/robot/feedback\nrobot_port/msg/RobotFeedback" as feedback
+artifact "/dynamic_cloud\nPointCloud2" as dynamic
+artifact "/auto_mode/simulation\nSimulationState" as simulation_state
+artifact "/clock\nClock" as clock
+
+field --> targets
+targets ..> rviz
+camera --> cloth : depth / color / CameraInfo
+cloth --> raw_image
+cloth --> compressed_image
+cloth --> camera_info
+cloth --> cloth_position
+cloth --> cloth_marker
+cloth --> cloth_path
+cloth --> camera_view
+cloth --> roi_markers
+cloth --> cluster_points
+cloth --> filtered_points
+cloth_position ..> trajectory
+cloth_path ..> trajectory
+trajectory --> cloth_marker : probability analysis
+cloth_position ..> shooter : optional aiming input
+operation ..> mock : integration test
+mock --> feedback : integration test
+simulation --> dynamic : integration test
+simulation --> simulation_state
+clock ..> simulation
+clock ..> cloth
+rviz ..> targets
+rviz ..> cloth_marker
+rviz ..> camera_view
+rviz ..> roi_markers
+debugger ..> operation : debug / optional
+
+note bottom
+robot-bringup blue/red/test are launch integrators, not a single graph node.
+robot_debugger is kept separately because its production data-path connection
+is not established by the launch/source inspection.
+end note
+@enduml
