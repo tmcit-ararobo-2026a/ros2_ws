@@ -43,3 +43,7 @@ repositories:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/LiDAR-Perception-System
     version: main
+  shooter_calculator:
+    type: git
+    url: https://github.com/tmcit-ararobo-2026a/shooter_calculator
+    version: master
