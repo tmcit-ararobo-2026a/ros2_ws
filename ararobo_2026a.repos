@@ -7,10 +7,6 @@ repositories:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/livox_ros_driver2
     version: master
-  opponent-tracker:
-    type: git
-    url: https://github.com/tmcit-ararobo-2026a/opponent-tracker
-    version: main
   robot-bringup:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/robot-bringup
@@ -39,7 +35,3 @@ repositories:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/LiDAR-Perception-System
     version: main
-  shooter_calculator:
-    type: git
-    url: https://github.com/tmcit-ararobo-2026a/shooter_calculator
-    version: master
