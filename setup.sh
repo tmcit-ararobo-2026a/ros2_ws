@@ -20,6 +20,7 @@ sudo apt update
 sudo apt install -y libceres-dev libeigen3-dev nlohmann-json3-dev tmux
 
 vcs import src < ararobo_2026a.repos
+vcs import data < private_2026a.repos
 source /opt/ros/humble/setup.bash
 
 # rosdep init の重複実行エラーを回避
