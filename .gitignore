@@ -66,3 +66,5 @@ fp-info-cache
 src/*
 !src/.gitkeep
 !data/.gitkeep
+*.esdf
+*.pcd
