@@ -35,3 +35,7 @@ repositories:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/LiDAR-Perception-System
     version: main
+  gn10-shot-manager:
+    type: git
+    url: https://github.com/tmcit-ararobo-2026a/gn10-shot-manager
+    version: main
