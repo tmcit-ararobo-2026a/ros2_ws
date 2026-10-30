@@ -65,6 +65,7 @@ fp-info-cache
 # プロジェクト固有
 src/*
 !src/.gitkeep
+data/*
 !data/.gitkeep
 *.esdf
 *.pcd
