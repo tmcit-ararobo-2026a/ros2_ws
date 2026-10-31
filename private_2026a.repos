@@ -3,3 +3,7 @@ repositories:
     type: git
     url: https://github.com/tmcit-ararobo-2026a/shot-trial-log
     version: main
+  shooting-points:
+    type: git
+    url: https://github.com/tmcit-ararobo-2026a/shooting-points
+    version: main
